@@ -8,11 +8,11 @@ import { Fonts } from "@/constants/theme";
 export default function AboutScreen() {
   return (
     <ParalaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
+      headerBackgroundColor={{ light: "#8ba185", dark: "#202b1d" }}
       headerImage={
         <IconSymbol
           size={310}
-          color="#808080"
+          color="#8ba185"
           name="info.circle.fill"
           style={GlobalStyles.headerImage}
         />
