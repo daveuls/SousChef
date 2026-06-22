@@ -40,7 +40,7 @@ export default function AboutScreen() {
           them to fall by the wayside once I've moved on past them.
         </ThemedText>
         <ThemedText>
-          I wanted to be able to save recipes from that I found on all corners
+          I wanted to be able to save recipes from what I found on all corners
           of the internet and have them readily available in one place, and
           easily add the ingredients from those recipes to my weekly grocery
           list.
