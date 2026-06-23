@@ -2,6 +2,7 @@ import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { API_BASE_URI } from "@/constants/api";
 import { GlobalStyles } from "@/constants/style";
 import { Fonts } from "@/constants/theme";
 import { useEffect, useState } from "react";
@@ -12,7 +13,7 @@ export default function RecipesScreen() {
   useEffect(() => {
     async function loadRecipes() {
       try {
-        const response = await fetch("http://192.168.1.10:3000/recipes");
+        const response = await fetch(`${API_BASE_URI}/recipes`);
         const data = await response.json();
         setRecipes(data);
       } catch (error) {
@@ -52,7 +53,9 @@ export default function RecipesScreen() {
       </ThemedText>
 
       {recipes.map((recipe: any) => (
-        <ThemedText key={recipe.id}>{recipe.name}</ThemedText>
+        <ThemedText key={recipe.id}>
+          {recipe.recipe_name || recipe.name || "Untitled recipe"}
+        </ThemedText>
       ))}
     </ParallaxScrollView>
   );
