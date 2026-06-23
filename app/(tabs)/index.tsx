@@ -12,12 +12,7 @@ export default function HomeScreen() {
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#8ba185", dark: "#202b1d" }}
       headerImage={
-        <IconSymbol
-          size={310}
-          color="#8ba185"
-          name="fork.knife.circle.fill"
-          style={GlobalStyles.headerImage}
-        />
+        <IconSymbol size={310} color="#8ba185" name="fork.knife.circle.fill" style={GlobalStyles.headerImage}/>
       }
     >
       <ThemedView style={GlobalStyles.titleContainer}>
@@ -26,7 +21,7 @@ export default function HomeScreen() {
       </ThemedView>
       <ThemedView style={[GlobalStyles.stepContainer, { marginBottom: 16 }]}>
         <ThemedText type="subtitle" style={GlobalStyles.textPaddingBottom}>
-          Let's get started by selecting one of the options below
+          Let&apos;s get started by selecting one of the options below
         </ThemedText>
         <Collapsible title="Recipes">
           <ThemedText style={GlobalStyles.textPaddingBottom}>

@@ -10,21 +10,11 @@ export default function AboutScreen() {
     <ParalaxScrollView
       headerBackgroundColor={{ light: "#8ba185", dark: "#202b1d" }}
       headerImage={
-        <IconSymbol
-          size={310}
-          color="#8ba185"
-          name="info.circle.fill"
-          style={GlobalStyles.headerImage}
-        />
+        <IconSymbol size={310} color="#8ba185" name="info.circle.fill" style={GlobalStyles.headerImage}/>
       }
     >
       <ThemedView style={GlobalStyles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}
-        >
+        <ThemedText type="title" style={{ fontFamily: Fonts.rounded }}>
           About
         </ThemedText>
       </ThemedView>
@@ -37,7 +27,7 @@ export default function AboutScreen() {
           I have spent a lot of time reading through recipes, saving recipes,
           putting together grocery lists based on those recipes, discovering
           delicious food content and recipes on Instagram and TikTok, only for
-          them to fall by the wayside once I've moved on past them.
+          them to fall by the wayside once I&apos;ve moved on past them.
         </ThemedText>
         <ThemedText>
           I wanted to be able to save recipes from what I found on all corners

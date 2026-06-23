@@ -11,6 +11,8 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const app = express();
+const recipesRouter = express.Router();
+
 app.use(cors());
 app.use(express.json());
 
@@ -37,7 +39,7 @@ const poolPromise = new sql.ConnectionPool(dbConfig)
     process.exit(1);
   });
 
-app.get("/recipes", async (req, res) => {
+recipesRouter.get("/", async (req, res) => {
   try {
     const pool = await poolPromise;
     const result = await pool.request().query("SELECT * FROM Recipes");
@@ -47,6 +49,48 @@ app.get("/recipes", async (req, res) => {
     res.status(500).json({ error: "Failed to load recipes" });
   }
 });
+
+recipesRouter.get("/ingredients/:recipeId", async (req, res) => {
+  try {
+    const recipeId = Number(req.params.recipeId);
+    const pool = await poolPromise;
+
+    const result = await pool
+      .request()
+      .input("RecipeId", sql.Int, recipeId)
+      .execute("dbo.GetIngredientsByRecipeId");
+
+    res.json(result.recordset || []);
+  } catch (err) {
+    console.error(
+      "Error fetching ingredients. Looks like you're starving tonight:",
+      err,
+    );
+    res.status(500).json({ error: "Failed to load ingredients" });
+  }
+});
+
+recipesRouter.get("/instructions/:recipeId", async (req, res) => {
+  try {
+    const recipeId = Number(req.params.recipeId);
+    const pool = await poolPromise;
+
+    const result = await pool
+      .request()
+      .input("RecipeId", sql.Int, recipeId)
+      .execute("dbo.GetInstructionsByRecipeId");
+
+    res.json(result.recordset || []);
+  } catch (err) {
+    console.error(
+      "Uh Oh. Error loading the instructions. You can always make slop:",
+      err,
+    );
+    res.status(500).json({ error: "Failed to load instructions" });
+  }
+});
+
+app.use("/recipes", recipesRouter);
 
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";

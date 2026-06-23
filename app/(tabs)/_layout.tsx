@@ -11,11 +11,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        // tabBarActiveTintColor: Colors[colorScheme ?? "dark"].tint,
-        tabBarActiveTintColor:
-          TabBarStyles[colorScheme ?? "light"].activeTintColor,
-        tabBarInactiveTintColor:
-          TabBarStyles[colorScheme ?? "light"].inactiveTintColor,
+        tabBarActiveTintColor: TabBarStyles[colorScheme ?? "light"].activeTintColor,
+        tabBarInactiveTintColor: TabBarStyles[colorScheme ?? "light"].inactiveTintColor,
         tabBarStyle: TabBarStyles[colorScheme ?? "light"].tabBarStyle,
         headerShown: false,
         tabBarButton: HapticTab,
@@ -44,11 +41,7 @@ export default function TabLayout() {
         options={{
           title: "Grocery List",
           tabBarIcon: ({ color }) => (
-            <IconSymbol
-              size={28}
-              name="list.dash.header.rectangle.fill"
-              color={color}
-            />
+            <IconSymbol size={28} name="list.dash.header.rectangle.fill" color={color} />
           ),
         }}
       />

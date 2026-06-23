@@ -10,21 +10,11 @@ export default function GroceryListScreen() {
     <ParalaxScrollView
       headerBackgroundColor={{ light: "#8ba185", dark: "#202b1d" }}
       headerImage={
-        <IconSymbol
-          size={310}
-          color="#8ba185"
-          name="list.dash.header.rectangle.fill"
-          style={GlobalStyles.headerImage}
-        />
+        <IconSymbol size={310} color="#8ba185" name="list.dash.header.rectangle.fill" style={GlobalStyles.headerImage}/>
       }
     >
       <ThemedView style={GlobalStyles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}
-        >
+        <ThemedText type="title" style={{ fontFamily: Fonts.rounded }}>
           Groceries
         </ThemedText>
       </ThemedView>
