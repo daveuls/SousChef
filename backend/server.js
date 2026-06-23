@@ -2,8 +2,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import sql from "mssql";
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 const app = express();
 app.use(cors());
@@ -21,7 +26,7 @@ const dbConfig = {
   },
 };
 
-const poolProimise = new sql.ConnectionPool(dbConfig)
+const poolPromise = new sql.ConnectionPool(dbConfig)
   .connect()
   .then((pool) => {
     console.log("Connected to SQL Server");
@@ -43,6 +48,9 @@ app.get("/recipes", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`Backend listening on port ${process.env.PORT || 3000}`);
+const port = Number(process.env.PORT || 3000);
+const host = process.env.HOST || "0.0.0.0";
+
+app.listen(port, host, () => {
+  console.log(`Backend listening on http://${host}:${port}`);
 });
