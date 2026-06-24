@@ -125,7 +125,7 @@ export default function RecipesScreen() {
       <ThemedText>
         You can upload an existing one or start from scratch (manual input).
       </ThemedText>
-      <ThemedView style={GlobalStyles.textContainer}>
+      <ThemedView style={[GlobalStyles.textContainer, { gap: 16 }]}>
         {recipes.map((recipe: any) => (
           <Collapsible
             key={recipe.id}
