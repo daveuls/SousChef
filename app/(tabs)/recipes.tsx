@@ -9,7 +9,7 @@ import { Fonts } from "@/constants/theme";
 import { useGroceryList } from "@/contexts/grocery-list-context";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity } from "react-native";
 
 export default function RecipesScreen() {
   const [recipes, setRecipes] = useState<any[]>([]);
@@ -22,6 +22,10 @@ export default function RecipesScreen() {
   const handleAddToGroceryList = (recipeId: number) => {
     const recipeIngredients = ingredientsByRecipe[recipeId] || [];
     addItems(recipeIngredients);
+    Alert.alert("Ingredients Added", "The ingredients for this meal have been added to your grocery list.", 
+    [
+      {text: "Okay"}, {onPress: () => console.log("Ingredients added to grocery list.")}
+    ]);
   }
 
   useEffect(() => {
