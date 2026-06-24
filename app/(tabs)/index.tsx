@@ -6,8 +6,12 @@ import { Collapsible } from "@/components/ui/collapsible";
 import { IconSymbol } from "@/components/ui/icon-symbol.ios";
 import { GlobalStyles } from "@/constants/style";
 import { Link } from "expo-router";
+import { useState } from "react";
 
 export default function HomeScreen() {
+  const [isRecipesOpen, setIsRecipesOpen] = useState(false);
+  const [isGroceryListOpen, setIsGroceryListOpen] = useState(false);
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#8ba185", dark: "#202b1d" }}
@@ -23,7 +27,7 @@ export default function HomeScreen() {
         <ThemedText type="subtitle" style={GlobalStyles.textPaddingBottom}>
           Let&apos;s get started by selecting one of the options below
         </ThemedText>
-        <Collapsible title="Recipes">
+        <Collapsible title="Recipes" isOpen={isRecipesOpen} onToggle={() => setIsRecipesOpen((value) => !value)}>
           <ThemedText style={GlobalStyles.textPaddingBottom}>
             Any recipe you upload or create will be saved here. Just tap the
             link below to go to the Recipes tab.
@@ -38,7 +42,7 @@ export default function HomeScreen() {
         </Collapsible>
       </ThemedView>
       <ThemedView style={[GlobalStyles.stepContainer, { marginBottom: 16 }]}>
-        <Collapsible title="Grocery List">
+        <Collapsible title="Grocery List" isOpen={isGroceryListOpen} onToggle={() => setIsGroceryListOpen((value) => !value)}>
           <ThemedText style={GlobalStyles.textPaddingBottom}>
             This is where you can view your grocery list and modify it. Tap the
             link below to go to the Grocery List tab.

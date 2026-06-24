@@ -12,6 +12,7 @@ export default function RecipesScreen() {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [ingredientsByRecipe, setIngredientsByRecipe] = useState<Record<number, string[]>>({});
   const [instructionsByRecipe, setInstructionsByRecipe] = useState<Record<number, { stepNumber: number | string; instructionText: string}[]>>({});
+  const [openRecipeIds, setOpenRecipeIds] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     async function loadRecipes() {
@@ -61,6 +62,31 @@ export default function RecipesScreen() {
     loadRecipes();
   }, []);
 
+  useEffect(() => {
+    const validRecipeIds = new Set(recipes.map((recipe) => recipe.id));
+
+    setOpenRecipeIds((prev) => {
+      const next: Record<number, boolean> = {};
+
+      Object.entries(prev).forEach(([id, isOpen]) => {
+        const numericId = Number(id);
+
+        if (validRecipeIds.has(numericId)) {
+          next[numericId] = isOpen;
+        }
+      });
+
+      return next;
+    });
+  }, [recipes]);
+
+  const toggleRecipe = (recipeId: number) => {
+    setOpenRecipeIds((prev) => ({
+      ...prev,
+      [recipeId]: !prev[recipeId],
+    }));
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#8ba185", dark: "#202b1d" }}
@@ -84,6 +110,8 @@ export default function RecipesScreen() {
           <Collapsible
             key={recipe.id}
             title={recipe.recipe_name || "Untitled recipe"}
+            isOpen={Boolean(openRecipeIds[recipe.id])}
+            onToggle={() => toggleRecipe(recipe.id)}
           >
             <ThemedText style={GlobalStyles.textContainer}>
               Eat this for {recipe.recipe_type}. Below is everything you&apos;ll need
