@@ -22,6 +22,30 @@ export const GlobalStyles = StyleSheet.create({
   textPaddingBottom: {
     paddingBottom: 10,
   },
+  buttonStyle : {
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#8ba185",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 5,
+    marginBottom: 20
+  },
+  buttonText : {
+      color: "#525f4e",
+      fontSize: 16,
+      fontWeight: 600
+  },
+  listCheck : {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: "#8ba185",
+    marginRight: 10,
+    justifyContent: "center",
+    alignItems: "center"
+  },
   reactLogo: {
     height: 178,
     width: 290,

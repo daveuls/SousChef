@@ -6,13 +6,22 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { API_BASE_URI } from "@/constants/api";
 import { GlobalStyles } from "@/constants/style";
 import { Fonts } from "@/constants/theme";
+import { useGroceryList } from "@/contexts/grocery-list-context";
 import { useEffect, useState } from "react";
+import { TouchableOpacity } from "react-native";
 
 export default function RecipesScreen() {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [ingredientsByRecipe, setIngredientsByRecipe] = useState<Record<number, string[]>>({});
   const [instructionsByRecipe, setInstructionsByRecipe] = useState<Record<number, { stepNumber: number | string; instructionText: string}[]>>({});
   const [openRecipeIds, setOpenRecipeIds] = useState<Record<number, boolean>>({});
+  
+  const { addItems } = useGroceryList();
+
+  const handleAddToGroceryList = (recipeId: number) => {
+    const recipeIngredients = ingredientsByRecipe[recipeId] || [];
+    addItems(recipeIngredients);
+  }
 
   useEffect(() => {
     async function loadRecipes() {
@@ -137,6 +146,11 @@ export default function RecipesScreen() {
                 </ThemedText>
               )}
             </ThemedView>
+            <TouchableOpacity style={GlobalStyles.buttonStyle} onPress={() => handleAddToGroceryList(recipe.id)}>
+              <ThemedText style={GlobalStyles.buttonText}>
+                Add ingredients to grocery list
+              </ThemedText>
+            </TouchableOpacity>
             <ThemedText style={GlobalStyles.textContainer}>Steps:</ThemedText>
             <ThemedView
               style={{ marginLeft: 14, marginTop: 6, paddingBottom: 10 }}
