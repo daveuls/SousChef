@@ -5,12 +5,19 @@ import { ThemedView } from "@/components/themed-view";
 import { Collapsible } from "@/components/ui/collapsible";
 import { IconSymbol } from "@/components/ui/icon-symbol.ios";
 import { GlobalStyles } from "@/constants/style";
-import { Link } from "expo-router";
-import { useState } from "react";
+import { Link, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 
 export default function HomeScreen() {
   const [isRecipesOpen, setIsRecipesOpen] = useState(false);
   const [isGroceryListOpen, setIsGroceryListOpen] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setIsRecipesOpen(false);
+      setIsGroceryListOpen(false);
+    }, [])
+  );
 
   return (
     <ParallaxScrollView

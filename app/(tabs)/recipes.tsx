@@ -7,7 +7,8 @@ import { API_BASE_URI } from "@/constants/api";
 import { GlobalStyles } from "@/constants/style";
 import { Fonts } from "@/constants/theme";
 import { useGroceryList } from "@/contexts/grocery-list-context";
-import { useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
 
 export default function RecipesScreen() {
@@ -88,6 +89,16 @@ export default function RecipesScreen() {
       return next;
     });
   }, [recipes]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setOpenRecipeIds({});
+
+      return () => {
+        setOpenRecipeIds({});
+      };
+    }, [])
+  );
 
   const toggleRecipe = (recipeId: number) => {
     setOpenRecipeIds((prev) => ({

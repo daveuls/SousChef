@@ -5,10 +5,40 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { GlobalStyles } from "@/constants/style";
 import { Fonts } from "@/constants/theme";
 import { useGroceryList } from "@/contexts/grocery-list-context";
-import { TouchableOpacity } from "react-native";
+import { Alert, TouchableOpacity } from "react-native";
 
 export default function GroceryListScreen() {
-  const { items, toggleItem } = useGroceryList();
+  const { items, toggleItem, addItems } = useGroceryList();
+
+  const handleModifyPress = () => {
+    Alert.prompt(
+      "Add item(s)",
+      "Enter one or more items separated by commas",
+      [
+        {text: "Cancel", style: "cancel" },
+        {
+          text: "Add",
+          onPress: (value?: string | undefined) => {
+            const trimmed = value?.trim();
+
+            if (!trimmed) {
+              return;
+            }
+
+            const itemsToAdd = trimmed
+              .split(",")
+              .map((item) => item.trim())
+              .filter(Boolean);
+
+              if (itemsToAdd.length > 0) {
+                addItems(itemsToAdd);
+              }
+          }
+        }
+      ],
+      "plain-text"
+    );
+  };
 
   return (
     <ParalaxScrollView
@@ -25,7 +55,7 @@ export default function GroceryListScreen() {
       <ThemedText style={GlobalStyles.textContainer}>
         Here is your current grocery list. You can modify it by clicking the &quot;Modify&quot; button.
       </ThemedText>
-      <TouchableOpacity style={[GlobalStyles.buttonStyle, { width: 150 }]}>
+      <TouchableOpacity style={[GlobalStyles.buttonStyle, { width: 150 }]} onPress={handleModifyPress}>
         <ThemedText style={GlobalStyles.buttonText}>
           Modify
         </ThemedText>
