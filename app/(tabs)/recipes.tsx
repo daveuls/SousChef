@@ -265,11 +265,11 @@ export default function RecipesScreen() {
                 borderWidth: 1,
                 borderColor: "#ccc",
                 borderRadius: 8,
-                padding: 10,
+                padding: 6,
                 backgroundColor: "transparent",
               }}
             >
-              <ThemedText style={{ color: newRecipeType ? "#eeead7" : "#a8a08b" }}>
+              <ThemedText style={{ color: newRecipeType ? "#eeead7" : "#ccc", fontSize: 14 }}>
                 {newRecipeType || "Select recipe type"}
               </ThemedText>
             </TouchableOpacity>
