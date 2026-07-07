@@ -9,13 +9,19 @@ import { Fonts } from "@/constants/theme";
 import { useGroceryList } from "@/contexts/grocery-list-context";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, TouchableOpacity } from "react-native";
+import { Alert, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function RecipesScreen() {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [ingredientsByRecipe, setIngredientsByRecipe] = useState<Record<number, string[]>>({});
-  const [instructionsByRecipe, setInstructionsByRecipe] = useState<Record<number, { stepNumber: number | string; instructionText: string; videoURL?: string}[]>>({});
+  const [instructionsByRecipe, setInstructionsByRecipe] = useState<Record<number, { stepNumber: number | string; instructionText?: string; videoURL?: string}[]>>({});
   const [openRecipeIds, setOpenRecipeIds] = useState<Record<number, boolean>>({});
+  const [newRecipeName, setNewRecipeName] = useState("");
+  const [newRecipeType, setNewRecipeType] = useState("");
+  const [newVideoUrl, setNewVideoUrl] = useState("");
+  const [newInstructionText, setNewInstructionText] = useState("");
+  const [entryMode, setEntryMode] = useState<"manual" | "upload">("manual");
+  const [showCreateRecipeForm, setShowCreateRecipeForm] = useState(false);
   
   const { addItems } = useGroceryList();
 
@@ -28,8 +34,53 @@ export default function RecipesScreen() {
     ]);
   }
 
-  useEffect(() => {
-    async function loadRecipes() {
+  const handleCreateRecipe = async () => {
+    if (!newRecipeName || !newRecipeType) {
+      Alert.alert("Missing fields", "Please provide both the reciupe name and type of recipe before saving.");
+      return;
+    }
+
+    const payload: any = {
+      recipeName: newRecipeName,
+      recipeType: newRecipeType,
+    };
+
+    if (newVideoUrl.trim()) {
+      payload.VideoURL = newVideoUrl.trim();
+    }
+
+    // eventually need to update backend to accept manually entered instructions
+    if (entryMode === "manual" && newInstructionText.trim()) {
+      payload.Instructions = newInstructionText.trim();
+    }
+
+    try {
+      const response = await fetch (`${API_BASE_URI}/recipes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to save recipe: ${errorText}`);
+      }
+
+      setNewRecipeName("");
+      setNewRecipeType("");
+      setNewVideoUrl("");
+      setNewInstructionText("");
+
+      Alert.alert("Recipe Saved", "Your recipe has been saved successfully.");
+
+      await loadRecipes();
+    } catch (error) {
+      console.error("Failed to create recipe:", error);
+      Alert.alert("Error", "Failed to create recipe. Please try again later.");
+    }
+  }
+
+  async function loadRecipes() {
       try {
         const response = await fetch(`${API_BASE_URI}/recipes`);
         const data = await response.json();
@@ -60,8 +111,9 @@ export default function RecipesScreen() {
                 (item: any) => {
                   const stepNumber = item.step;
                   const instructionText = item.instruction || "Unknown Instruction";
+                  const videoUrl = item.video_url || null;
 
-                  return {stepNumber, instructionText};
+                  return {stepNumber, instructionText, videoUrl};
               }),
             }));
           } catch (e) {
@@ -73,6 +125,7 @@ export default function RecipesScreen() {
       }
     }
 
+  useEffect(() => {
     loadRecipes();
   }, []);
 
@@ -129,6 +182,55 @@ export default function RecipesScreen() {
       <ThemedText>
         You can upload an existing one or start from scratch (manual input).
       </ThemedText>
+      <TouchableOpacity style={GlobalStyles.buttonStyle} onPress={() => setShowCreateRecipeForm((prev) => !prev)}>
+        <ThemedText style={GlobalStyles.buttonText}>
+          {showCreateRecipeForm ? "Hide recipe form" : "Create a new recipe"}
+        </ThemedText>
+      </TouchableOpacity>
+      {showCreateRecipeForm && (
+        <ThemedView style={[GlobalStyles.textContainer, { gap: 12 }]}>
+          <ThemedText style={{ fontWeight: "700" }}>Create a new recipe</ThemedText>
+          <TextInput 
+            value={newRecipeName} 
+            onChangeText={setNewRecipeName} 
+            placeholder="Recipe Name" 
+            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10 }}
+          />
+          <TextInput 
+            value={newRecipeType} 
+            onChangeText={setNewRecipeType} 
+            placeholder="Recipe Type" 
+            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10 }}
+          />
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            <TouchableOpacity onPress={() => setEntryMode("manual")} style={[GlobalStyles.buttonStyle, { backgroundColor: entryMode === "manual" ? "#6a9c5a" : "#8ba185" }, ]}>
+              <ThemedText style={GlobalStyles.buttonText}>Enter recipe manually</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setEntryMode("upload")} style={[GlobalStyles.buttonStyle, { backgroundColor: entryMode === "upload" ? "#6a9c5a" : "#8ba185" }, ]}>
+              <ThemedText style={GlobalStyles.buttonText}>Upload recipe video</ThemedText>
+            </TouchableOpacity>
+          </View>
+          <TextInput
+            value={newVideoUrl}
+            onChangeText={setNewVideoUrl}
+            placeholder="Paste TikTTok/Instagram Reel/YouTube Video here"
+            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10 }}
+          />
+          {entryMode === "manual" && (
+            <TextInput
+              value={newInstructionText}
+              onChangeText={setNewInstructionText}
+              placeholder="Type the recipe steps here"
+              multiline
+              numberOfLines={4}
+              style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, minHeight: 100 }}
+            />
+          )}
+          <TouchableOpacity style={[GlobalStyles.buttonStyle, { marginTop: 20 }]} onPress={handleCreateRecipe}>
+            <ThemedText style={GlobalStyles.buttonText}>Save Recipe</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+      )}
       <ThemedView style={[GlobalStyles.textContainer, { gap: 16 }]}>
         {recipes.map((recipe: any) => (
           <Collapsible
@@ -176,7 +278,7 @@ export default function RecipesScreen() {
                     step: any,
                     index: number,
                   ) => {
-                    if (step.stepNumber === 1 && step.videoURL) {
+                    if (step.stepNumber === 1 && step.videoUrl) {
                       return (
                         <ThemedView key={`${recipe.id}-${index}`} style={{ marginBottom: 8, paddingLeft: 6 }}>
                           <ThemedText style={{ fontWeight: "600", marginBottom: 6 }}>
@@ -184,7 +286,7 @@ export default function RecipesScreen() {
                           </ThemedText>
                           <TouchableOpacity onPress={() => {
                             import("expo-linking").then(({ default: Linking }) => {
-                              Linking.openURL(step.videoURL);
+                              Linking.openURL(step.videoUrl);
                             });
                           }}
                           style={{ backgroundColor: "#8ba185", padding: 10, borderRadius: 6 }}>
@@ -207,24 +309,6 @@ export default function RecipesScreen() {
                     );
                   },
                 )
-                // (instructionsByRecipe[recipe.id] || []).map(
-                //   (
-                //     step: {
-                //       stepNumber: number | string;
-                //       instructionText: string;
-                //     },
-                //     index: number,
-                //   ) => (
-                //     <ThemedView key={`${recipe.id}-${index}`} style={{ marginBottom: 8, paddingLeft: 6 }}>
-                //       <ThemedText style={{ fontWeight: "600", marginBottom: 2 }}>
-                //         Step {step.stepNumber}
-                //       </ThemedText>
-                //       <ThemedText style={{ lineHeight: 20, paddingLeft: 8 }}>
-                //         {step.instructionText}
-                //       </ThemedText>
-                //     </ThemedView>
-                //   ),
-                // )
               ) : (
                 <ThemedText
                   style={{ marginTop: 4, fontStyle: "italic", paddingBottom: 10 }}>
