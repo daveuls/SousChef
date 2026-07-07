@@ -26,6 +26,9 @@ export default function RecipesScreen() {
   const [showCreateRecipeForm, setShowCreateRecipeForm] = useState(false);
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
   const [showEmbeddedUrl, setShowEmbeddedUrl] = useState(false);
+  const [showRecipeTypeMenu, setShowRecipeTypeMenu] = useState(false);
+  
+  const recipeTypeOptions = ["Breakfast", "Brunch", "Lunch", "Lunch/Dinner","Dinner", "Snack", "Dessert", "Other"];
 
   const { addItems } = useGroceryList();
 
@@ -249,12 +252,54 @@ export default function RecipesScreen() {
             placeholder="Recipe Name" 
             style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, color: "#eeead7" }}
           />
-          <TextInput 
+          {/* <TextInput 
             value={newRecipeType} 
             onChangeText={setNewRecipeType} 
             placeholder="Recipe Type" 
             style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, color: "#eeead7" }}
-          />
+          /> */}
+          <View>
+            <TouchableOpacity
+              onPress={() => setShowRecipeTypeMenu((prev) => !prev)}
+              style={{
+                borderWidth: 1,
+                borderColor: "#ccc",
+                borderRadius: 8,
+                padding: 10,
+                backgroundColor: "transparent",
+              }}
+            >
+              <ThemedText style={{ color: newRecipeType ? "#eeead7" : "#a8a08b" }}>
+                {newRecipeType || "Select recipe type"}
+              </ThemedText>
+            </TouchableOpacity>
+
+            {showRecipeTypeMenu && (
+              <View
+                style={{
+                  marginTop: 6,
+                  borderWidth: 1,
+                  borderColor: "#ccc",
+                  borderRadius: 8,
+                  overflow: "hidden",
+                  backgroundColor: "#2f3a2b",
+                }}
+              >
+                {recipeTypeOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    onPress={() => {
+                      setNewRecipeType(option);
+                      setShowRecipeTypeMenu(false);
+                    }}
+                    style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: "#4a5a3f" }}
+                  >
+                    <ThemedText style={{ color: "#eeead7" }}>{option}</ThemedText>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
           <View style={{ flexDirection: "row", gap: 10, alignItems: "center", justifyContent: "center" }}>
             <TouchableOpacity 
               onPress={() => setEntryMode("manual")} 
@@ -342,11 +387,13 @@ export default function RecipesScreen() {
                 </ThemedText>
               )}
             </ThemedView>
-            <TouchableOpacity style={GlobalStyles.buttonStyle} onPress={() => handleAddToGroceryList(recipe.id)}>
-              <ThemedText style={GlobalStyles.buttonText}>
-                Add ingredients to grocery list
-              </ThemedText>
-            </TouchableOpacity>
+            {(ingredientsByRecipe[recipe.id] || []).length > 0 && (
+              <TouchableOpacity style={GlobalStyles.buttonStyle} onPress={() => handleAddToGroceryList(recipe.id)}>
+                <ThemedText style={GlobalStyles.buttonText}>
+                  Add ingredients to grocery list
+                </ThemedText>
+              </TouchableOpacity>
+            )}
             <ThemedText style={GlobalStyles.textContainer}>Steps:</ThemedText>
             <ThemedView
               style={{ marginLeft: 14, marginTop: 6, paddingBottom: 10 }}
