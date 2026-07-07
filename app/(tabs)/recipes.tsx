@@ -7,9 +7,11 @@ import { API_BASE_URI } from "@/constants/api";
 import { GlobalStyles } from "@/constants/style";
 import { Fonts } from "@/constants/theme";
 import { useGroceryList } from "@/contexts/grocery-list-context";
+import * as Linking from "expo-linking";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Modal, Pressable, TextInput, TouchableOpacity, View } from "react-native";
+import { WebView } from "react-native-webview";
 
 export default function RecipesScreen() {
   const [recipes, setRecipes] = useState<any[]>([]);
@@ -87,7 +89,6 @@ export default function RecipesScreen() {
       const parsedUrl = new URL(url);
       const host = parsedUrl.hostname.toLowerCase();
 
-      // Youtube video URLs
       if (host.includes("youtube.com") && parsedUrl.searchParams.get("v")) {
         return `https://www.youtube.com/embed/${parsedUrl.searchParams.get("v")}`;
       }
@@ -96,36 +97,9 @@ export default function RecipesScreen() {
         return `https://www.youtube.com/embed/${parsedUrl.pathname.slice(1)}`;
       }
 
-      // handle TikToks
-      if (host.includes("tiktok.com")) {
-        const parts = parsedUrl.pathname.split("/").filter(Boolean);
-        const id = parts[parts.length - 1];
-
-        if (id) {
-          return `https://www.tiktok.com/embed/vs/${id}`;
-        }
-
-        return url;
-      }
-
-      
-      if (host.includes("instagram.com")) {
-        const parts = parsedUrl.pathname.split("/").filter(Boolean);
-
-        if (parts[0] === "reel" && parts[1]) {
-          return `https://www.instagram.com/reel/${parts[1]}/embed/`;
-        }
-
-        if (parts[0] === "p" && parts[1]) {
-          return `https://www.instagram.com/p/${parts[1]}/embed/`;
-        }
-
-        return url;
-      }
-
-      return url;
+      return null;
     } catch {
-      return url;
+      return null;
     }
   };
 
@@ -220,6 +194,36 @@ export default function RecipesScreen() {
         <IconSymbol size={310} color="#8ba185" name="menucard.fill" style={GlobalStyles.headerImage}/>
       }
     >
+      <Modal
+        visible={showEmbeddedUrl}
+        animationType="slide"
+        onRequestClose={() => setShowEmbeddedUrl(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: "#000" }}>
+          <Pressable onPress={() => setShowEmbeddedUrl(false)} style={{ padding: 12} }>
+            <ThemedText style={{ color:"#fff" }}>Close</ThemedText>
+          </Pressable>
+          {embedUrl ? (
+            <WebView
+              source={{ uri: embedUrl }}
+              style={{ flex: 1, backgroundColor: "#000" }}
+              javascriptEnabled
+              domStorageEnabled
+              allowsInlineMediaPlayback
+              mediaPlaybackRequiresUserAction={false}
+              onShouldStartLoadWithRequest={(request) => {
+                if (request.url && request.url !== embedUrl && request.url.includes("http")) {
+                  Linking.openURL(request.url);
+                  return false;
+                }
+                return true;
+              }}
+            />
+          ) : (
+            <ThemedText style={{ color: "#fff", padding: 12 }}>No video available</ThemedText>
+          )}
+        </View>
+      </Modal>
       <ThemedView style={GlobalStyles.titleContainer}>
         <ThemedText type="title" style={{ fontFamily: Fonts.rounded }}>
           Recipes
@@ -360,9 +364,15 @@ export default function RecipesScreen() {
                             Recipe Video
                           </ThemedText>
                           <TouchableOpacity onPress={() => {
-                            import("expo-linking").then((Linking) => {
-                              Linking.openURL(step.videoUrl);
-                            });
+                            const videoUrl = step.videoUrl || "";
+                            const embeddedUrl = getEmbeddedUrl(videoUrl);
+
+                            if (embeddedUrl) {
+                              setEmbedUrl(embeddedUrl);
+                              setShowEmbeddedUrl(true);
+                            } else if (videoUrl) {
+                              Linking.openURL(videoUrl);
+                            }
                           }}
                           style={{ backgroundColor: "#8ba185", padding: 10, borderRadius: 6 }}>
                             <ThemedText style={{ color: "#fff", fontWeight: "600" }}>
