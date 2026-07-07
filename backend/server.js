@@ -93,7 +93,7 @@ recipesRouter.get("/instructions/:recipeId", async (req, res) => {
 // the below API call is a POC for adding video and the full recipe call will be added at a later date.
 recipesRouter.post("/", async (req, res) => {
   try {
-    const { recipeName, recipeType, videoURL } = req.body;
+    const { recipeName, recipeType, videoUrl } = req.body;
 
     if (!recipeName || !recipeType) {
       return res.status(400).json({ error: "recipeName and recipeType are required" });
@@ -103,14 +103,14 @@ recipesRouter.post("/", async (req, res) => {
 
     const result = await pool
       .request()
-      .input("recipeName", sql.VarChar, recipeName)
-      .input("recipeType", sql.VarChar, recipeType)
-      .input("videoURL", sql.VarChar, videoURL)
-      .execute("CreateNewRecipeVIDEOONLY");
+      .input("RecipeName", sql.VarChar(255), recipeName)
+      .input("RecipeType", sql.VarChar(255), recipeType)
+      .input("RecipeUrl", sql.VarChar(1000), videoUrl)
+      .execute("dbo.CreateNewRecipeVIDEOONLY");
 
       const recipeId = result.recordset[0]?.RecipeId;
 
-      res.status(201).json({ id: recipeId, recipeName, recipeType, videoURL });
+      res.status(201).json({ id: recipeId, recipeName, recipeType, videoUrl });
   } catch (err) {
     console.error("Error creating new recipe:", err);
     res.status(500).json({ error: "Failed to create new recipe" });

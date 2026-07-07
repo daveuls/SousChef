@@ -22,7 +22,9 @@ export default function RecipesScreen() {
   const [newInstructionText, setNewInstructionText] = useState("");
   const [entryMode, setEntryMode] = useState<"manual" | "upload">("manual");
   const [showCreateRecipeForm, setShowCreateRecipeForm] = useState(false);
-  
+  const [embedUrl, setEmbedUrl] = useState<string | null>(null);
+  const [showEmbeddedUrl, setShowEmbeddedUrl] = useState(false);
+
   const { addItems } = useGroceryList();
 
   const handleAddToGroceryList = (recipeId: number) => {
@@ -46,13 +48,13 @@ export default function RecipesScreen() {
     };
 
     if (newVideoUrl.trim()) {
-      payload.VideoURL = newVideoUrl.trim();
-    }
+      payload.videoUrl = newVideoUrl.trim();
+    } 
 
     // eventually need to update backend to accept manually entered instructions
-    if (entryMode === "manual" && newInstructionText.trim()) {
-      payload.Instructions = newInstructionText.trim();
-    }
+    // if (entryMode === "manual" && newInstructionText.trim()) {
+    //   payload.Instructions = newInstructionText.trim();
+    // }
 
     try {
       const response = await fetch (`${API_BASE_URI}/recipes`, {
@@ -79,6 +81,53 @@ export default function RecipesScreen() {
       Alert.alert("Error", "Failed to create recipe. Please try again later.");
     }
   }
+
+  const getEmbeddedUrl = (url: string) => {
+    try {
+      const parsedUrl = new URL(url);
+      const host = parsedUrl.hostname.toLowerCase();
+
+      // Youtube video URLs
+      if (host.includes("youtube.com") && parsedUrl.searchParams.get("v")) {
+        return `https://www.youtube.com/embed/${parsedUrl.searchParams.get("v")}`;
+      }
+
+      if (host.includes("youtu.be")) {
+        return `https://www.youtube.com/embed/${parsedUrl.pathname.slice(1)}`;
+      }
+
+      // handle TikToks
+      if (host.includes("tiktok.com")) {
+        const parts = parsedUrl.pathname.split("/").filter(Boolean);
+        const id = parts[parts.length - 1];
+
+        if (id) {
+          return `https://www.tiktok.com/embed/vs/${id}`;
+        }
+
+        return url;
+      }
+
+      
+      if (host.includes("instagram.com")) {
+        const parts = parsedUrl.pathname.split("/").filter(Boolean);
+
+        if (parts[0] === "reel" && parts[1]) {
+          return `https://www.instagram.com/reel/${parts[1]}/embed/`;
+        }
+
+        if (parts[0] === "p" && parts[1]) {
+          return `https://www.instagram.com/p/${parts[1]}/embed/`;
+        }
+
+        return url;
+      }
+
+      return url;
+    } catch {
+      return url;
+    }
+  };
 
   async function loadRecipes() {
       try {
@@ -194,27 +243,53 @@ export default function RecipesScreen() {
             value={newRecipeName} 
             onChangeText={setNewRecipeName} 
             placeholder="Recipe Name" 
-            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10 }}
+            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, color: "#eeead7" }}
           />
           <TextInput 
             value={newRecipeType} 
             onChangeText={setNewRecipeType} 
             placeholder="Recipe Type" 
-            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10 }}
+            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, color: "#eeead7" }}
           />
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            <TouchableOpacity onPress={() => setEntryMode("manual")} style={[GlobalStyles.buttonStyle, { backgroundColor: entryMode === "manual" ? "#6a9c5a" : "#8ba185" }, ]}>
-              <ThemedText style={GlobalStyles.buttonText}>Enter recipe manually</ThemedText>
+          <View style={{ flexDirection: "row", gap: 10, alignItems: "center", justifyContent: "center" }}>
+            <TouchableOpacity 
+              onPress={() => setEntryMode("manual")} 
+              style={[
+                GlobalStyles.buttonStyle, 
+                { 
+                  flex: 0.5,
+                  paddingHorizontal: 12,
+                  minHeight: 50,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: entryMode === "manual" ? "#6a9c5a" : "#8ba185" 
+                }, 
+              ]}
+            >
+              <ThemedText style={GlobalStyles.buttonText}>Enter recipe</ThemedText>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setEntryMode("upload")} style={[GlobalStyles.buttonStyle, { backgroundColor: entryMode === "upload" ? "#6a9c5a" : "#8ba185" }, ]}>
-              <ThemedText style={GlobalStyles.buttonText}>Upload recipe video</ThemedText>
+            <TouchableOpacity 
+              onPress={() => setEntryMode("upload")} 
+              style={[
+                GlobalStyles.buttonStyle, 
+                { 
+                  flex: 0.5,
+                  paddingHorizontal: 12,
+                  minHeight: 50,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: entryMode === "upload" ? "#6a9c5a" : "#8ba185" 
+                }, 
+              ]}
+            >
+              <ThemedText style={GlobalStyles.buttonText}>Upload video</ThemedText>
             </TouchableOpacity>
           </View>
           <TextInput
             value={newVideoUrl}
             onChangeText={setNewVideoUrl}
             placeholder="Paste TikTTok/Instagram Reel/YouTube Video here"
-            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10 }}
+            style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, color: "#eeead7" }}
           />
           {entryMode === "manual" && (
             <TextInput
@@ -223,7 +298,7 @@ export default function RecipesScreen() {
               placeholder="Type the recipe steps here"
               multiline
               numberOfLines={4}
-              style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, minHeight: 100 }}
+              style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, minHeight: 100, color: "#eeead7" }}
             />
           )}
           <TouchableOpacity style={[GlobalStyles.buttonStyle, { marginTop: 20 }]} onPress={handleCreateRecipe}>
@@ -285,7 +360,7 @@ export default function RecipesScreen() {
                             Recipe Video
                           </ThemedText>
                           <TouchableOpacity onPress={() => {
-                            import("expo-linking").then(({ default: Linking }) => {
+                            import("expo-linking").then((Linking) => {
                               Linking.openURL(step.videoUrl);
                             });
                           }}
