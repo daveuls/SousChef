@@ -14,7 +14,7 @@ import { Alert, TouchableOpacity } from "react-native";
 export default function RecipesScreen() {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [ingredientsByRecipe, setIngredientsByRecipe] = useState<Record<number, string[]>>({});
-  const [instructionsByRecipe, setInstructionsByRecipe] = useState<Record<number, { stepNumber: number | string; instructionText: string}[]>>({});
+  const [instructionsByRecipe, setInstructionsByRecipe] = useState<Record<number, { stepNumber: number | string; instructionText: string; videoURL?: string}[]>>({});
   const [openRecipeIds, setOpenRecipeIds] = useState<Record<number, boolean>>({});
   
   const { addItems } = useGroceryList();
@@ -173,22 +173,58 @@ export default function RecipesScreen() {
               {(instructionsByRecipe[recipe.id] || []).length > 0 ? (
                 (instructionsByRecipe[recipe.id] || []).map(
                   (
-                    step: {
-                      stepNumber: number | string;
-                      instructionText: string;
-                    },
+                    step: any,
                     index: number,
-                  ) => (
-                    <ThemedView key={`${recipe.id}-${index}`} style={{ marginBottom: 8, paddingLeft: 6 }}>
-                      <ThemedText style={{ fontWeight: "600", marginBottom: 2 }}>
-                        Step {step.stepNumber}
-                      </ThemedText>
-                      <ThemedText style={{ lineHeight: 20, paddingLeft: 8 }}>
-                        {step.instructionText}
-                      </ThemedText>
-                    </ThemedView>
-                  ),
+                  ) => {
+                    if (step.stepNumber === 1 && step.videoURL) {
+                      return (
+                        <ThemedView key={`${recipe.id}-${index}`} style={{ marginBottom: 8, paddingLeft: 6 }}>
+                          <ThemedText style={{ fontWeight: "600", marginBottom: 6 }}>
+                            Recipe Video
+                          </ThemedText>
+                          <TouchableOpacity onPress={() => {
+                            import("expo-linking").then(({ default: Linking }) => {
+                              Linking.openURL(step.videoURL);
+                            });
+                          }}
+                          style={{ backgroundColor: "#8ba185", padding: 10, borderRadius: 6 }}>
+                            <ThemedText style={{ color: "#fff", fontWeight: "600" }}>
+                              Watch Video
+                              </ThemedText>
+                          </TouchableOpacity>
+                        </ThemedView>
+                      );
+                    }
+                    return (
+                      <ThemedView key={`${recipe.id}-${index}`} style={{ marginBottom: 8, paddingLeft: 6 }}>
+                        <ThemedText style={{ fontWeight: "600", marginBottom: 2 }}>
+                          Step {step.stepNumber}
+                        </ThemedText>
+                        <ThemedText style={{ lineHeight: 20, paddingLeft: 8 }}>
+                          {step.instructionText}
+                        </ThemedText>
+                      </ThemedView>
+                    );
+                  },
                 )
+                // (instructionsByRecipe[recipe.id] || []).map(
+                //   (
+                //     step: {
+                //       stepNumber: number | string;
+                //       instructionText: string;
+                //     },
+                //     index: number,
+                //   ) => (
+                //     <ThemedView key={`${recipe.id}-${index}`} style={{ marginBottom: 8, paddingLeft: 6 }}>
+                //       <ThemedText style={{ fontWeight: "600", marginBottom: 2 }}>
+                //         Step {step.stepNumber}
+                //       </ThemedText>
+                //       <ThemedText style={{ lineHeight: 20, paddingLeft: 8 }}>
+                //         {step.instructionText}
+                //       </ThemedText>
+                //     </ThemedView>
+                //   ),
+                // )
               ) : (
                 <ThemedText
                   style={{ marginTop: 4, fontStyle: "italic", paddingBottom: 10 }}>

@@ -23,3 +23,7 @@ CREATE TABLE Instructions (
 	step INT,
 	instruction VARCHAR(1000)
 );
+
+-- added after table creation
+ALTER TABLE Instructions
+ADD video_url VARCHAR(1000) NULL;

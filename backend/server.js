@@ -90,6 +90,33 @@ recipesRouter.get("/instructions/:recipeId", async (req, res) => {
   }
 });
 
+// the below API call is a POC for adding video and the full recipe call will be added at a later date.
+recipesRouter.post("/", async (req, res) => {
+  try {
+    const { recipeName, recipeType, videoURL } = req.body;
+
+    if (!recipeName || !recipeType) {
+      return res.status(400).json({ error: "recipeName and recipeType are required" });
+    }
+
+    const pool = await poolPromise;
+
+    const result = await pool
+      .request()
+      .input("recipeName", sql.VarChar, recipeName)
+      .input("recipeType", sql.VarChar, recipeType)
+      .input("videoURL", sql.VarChar, videoURL)
+      .execute("CreateNewRecipeVIDEOONLY");
+
+      const recipeId = result.recordset[0]?.RecipeId;
+
+      res.status(201).json({ id: recipeId, recipeName, recipeType, videoURL });
+  } catch (err) {
+    console.error("Error creating new recipe:", err);
+    res.status(500).json({ error: "Failed to create new recipe" });
+  }
+});
+
 app.use("/recipes", recipesRouter);
 
 const port = Number(process.env.PORT || 3000);
